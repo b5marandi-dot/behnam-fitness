@@ -1,0 +1,1566 @@
+<title>برنامه بهنام — دبی</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap">
+
+<style>
+/* === DESIGN TOKENS ===
+   Layout: RTL single-column with sticky tab nav, section cards
+   Colors: Deep charcoal + electric teal accent, warm off-white ground
+*/
+:root {
+  --bg: #F7F6F3;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F0EEE9;
+  --fg: #1C1B18;
+  --fg-mid: #5A5750;
+  --fg-faint: #9A9690;
+  --accent: #0D9E8A;
+  --accent-light: #E6F7F4;
+  --accent-dark: #0A7D6E;
+  --warn: #E8A020;
+  --warn-light: #FEF6E6;
+  --danger: #D94040;
+  --success: #2E9E60;
+  --border: rgba(28,27,24,0.1);
+  --shadow: 0 2px 12px rgba(28,27,24,0.07);
+  --shadow-lg: 0 8px 32px rgba(28,27,24,0.12);
+  --radius: 14px;
+  --font: 'Vazirmatn', system-ui, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141412;
+    --bg-card: #1E1D1A;
+    --bg-subtle: #252420;
+    --fg: #F0EFE8;
+    --fg-mid: #A8A49C;
+    --fg-faint: #6A6660;
+    --accent: #12C4A8;
+    --accent-light: #0D2E28;
+    --accent-dark: #16E0C0;
+    --warn: #F0B840;
+    --warn-light: #2A2010;
+    --border: rgba(240,239,232,0.1);
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #141412;
+  --bg-card: #1E1D1A;
+  --bg-subtle: #252420;
+  --fg: #F0EFE8;
+  --fg-mid: #A8A49C;
+  --fg-faint: #6A6660;
+  --accent: #12C4A8;
+  --accent-light: #0D2E28;
+  --accent-dark: #16E0C0;
+  --warn: #F0B840;
+  --warn-light: #2A2010;
+  --border: rgba(240,239,232,0.1);
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  direction: rtl;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+}
+
+/* HEADER */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 200;
+  background: var(--bg-card);
+}
+
+.header-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.header-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+}
+
+.header-title span {
+  color: var(--accent);
+}
+
+.header-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-subtle);
+  border-radius: 100px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--fg-mid);
+  white-space: nowrap;
+}
+
+.stat-chip .val {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* TAB NAV */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 16px;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fg-mid);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--fg); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* CONTENT */
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 24px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* SECTION HEADER */
+.section-header {
+  margin-bottom: 20px;
+}
+.section-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  color: var(--fg);
+}
+.section-sub {
+  font-size: 0.85rem;
+  color: var(--fg-mid);
+  margin-top: 4px;
+}
+
+/* ALERT CARD */
+.alert {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--warn-light);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--fg);
+  line-height: 1.5;
+}
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.alert strong { color: var(--warn); }
+
+/* MACRO RING ROW */
+.macro-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.macro-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.macro-val {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.macro-unit {
+  font-size: 0.72rem;
+  color: var(--fg-faint);
+  font-weight: 500;
+}
+.macro-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--fg-mid);
+  margin-top: 6px;
+}
+
+/* MEAL TABLE */
+.meal-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.meal-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  font-size: 0.85rem;
+  min-width: 520px;
+}
+.meal-table thead {
+  background: var(--bg-subtle);
+}
+.meal-table th {
+  padding: 10px 14px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--fg-mid);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.meal-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--fg);
+}
+.meal-table tr:last-child td { border-bottom: none; }
+.meal-table tbody tr:hover { background: var(--bg-subtle); }
+
+.meal-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.meal-name-wrap { display: flex; align-items: center; gap: 8px; }
+.meal-name { font-weight: 600; display: block; }
+.meal-note { font-size: 0.75rem; color: var(--fg-faint); margin-top: 2px; }
+
+.cal-badge {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 100px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.macro-nums {
+  font-size: 0.78rem;
+  color: var(--fg-mid);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.total-row td {
+  background: var(--accent-light);
+  font-weight: 700;
+  color: var(--accent-dark);
+  border-top: 2px solid var(--accent);
+  font-size: 0.85rem;
+}
+
+/* BUDGET TABLE */
+.budget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.budget-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.budget-item-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--fg);
+}
+.budget-item-store {
+  font-size: 0.72rem;
+  color: var(--fg-faint);
+}
+.budget-price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.budget-qty {
+  font-size: 0.75rem;
+  color: var(--fg-mid);
+}
+
+.budget-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.budget-summary-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  color: var(--fg);
+}
+.budget-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.budget-line:last-child { border-bottom: none; }
+.budget-line-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+.budget-line-val.ok { color: var(--success); }
+.budget-line-val.warn { color: var(--warn); }
+
+/* TRAINING */
+.day-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.day-tabs::-webkit-scrollbar { display: none; }
+
+.day-btn {
+  flex: none;
+  background: var(--bg-subtle);
+  border: 2px solid transparent;
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fg-mid);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.day-btn:hover { border-color: var(--accent); color: var(--accent); }
+.day-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.day-panel { display: none; }
+.day-panel.active { display: block; }
+
+.day-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.day-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.day-focus {
+  font-size: 0.85rem;
+  color: var(--fg-mid);
+}
+
+.exercise-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.exercise-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  font-size: 0.85rem;
+  min-width: 460px;
+}
+.exercise-table thead {
+  background: var(--bg-subtle);
+}
+.exercise-table th {
+  padding: 10px 14px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--fg-mid);
+  border-bottom: 2px solid var(--border);
+}
+.exercise-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+  vertical-align: middle;
+}
+.exercise-table tr:last-child td { border-bottom: none; }
+.exercise-table tbody tr:hover { background: var(--bg-subtle); }
+
+.ex-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--fg-mid);
+}
+.ex-name { font-weight: 600; }
+.ex-note { font-size: 0.72rem; color: var(--fg-faint); margin-top: 2px; }
+
+.sets-badge {
+  display: inline-block;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  white-space: nowrap;
+}
+.reps-text {
+  font-size: 0.82rem;
+  color: var(--fg-mid);
+  font-variant-numeric: tabular-nums;
+}
+.rest-text {
+  font-size: 0.78rem;
+  color: var(--fg-faint);
+  white-space: nowrap;
+}
+.intensity-pill {
+  display: inline-block;
+  border-radius: 100px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.i-high { background: #fee; color: var(--danger); }
+.i-med { background: var(--warn-light); color: var(--warn); }
+.i-low { background: var(--accent-light); color: var(--accent); }
+
+.weekly-overview {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.week-day-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.week-day-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.week-day-content {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--fg-mid);
+  line-height: 1.3;
+}
+.week-day-card.train {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.week-day-card.train .week-day-label { color: var(--accent-dark); }
+.week-day-card.train .week-day-content { color: var(--accent-dark); }
+.week-day-card.rest { opacity: 0.6; }
+
+/* TIPS */
+.tips-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.tip-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 14px;
+}
+.tip-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-light);
+  border-radius: 10px;
+}
+.tip-content { flex: 1; min-width: 0; }
+.tip-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.tip-body {
+  font-size: 0.82rem;
+  color: var(--fg-mid);
+  line-height: 1.55;
+}
+
+/* PROGRESS BAR */
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.progress-label span { font-size: 0.78rem; color: var(--fg-mid); font-weight: 500; }
+.progress-label strong { font-size: 0.78rem; color: var(--fg); font-variant-numeric: tabular-nums; }
+.progress-bar {
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--accent);
+  transition: width 0.5s ease;
+}
+
+/* MOUNJARO NOTE */
+.mounjaro-guide {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-right: 4px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.mounjaro-guide h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--warn);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mounjaro-guide ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mounjaro-guide li {
+  display: flex;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--fg-mid);
+  line-height: 1.5;
+}
+.mounjaro-guide li::before {
+  content: "◆";
+  color: var(--warn);
+  font-size: 0.55rem;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+@media (min-width: 600px) {
+  .tips-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .macro-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .macro-val { font-size: 1.3rem; }
+  .weekly-overview { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+
+<!-- STICKY HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-title">برنامه <span>بهنام</span> — دبی ۲۰۲۶</div>
+      <div class="header-stats">
+        <div class="stat-chip">وزن <span class="val">۹۵ کیلو</span></div>
+        <div class="stat-chip">هدف <span class="val">~۸۰ کیلو</span></div>
+        <div class="stat-chip">۲۰۰۰ <span class="val">کالری</span></div>
+        <div class="stat-chip">بودجه <span class="val">۳۳ AED/روز</span></div>
+      </div>
+    </div>
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" data-tab="food" role="tab">🍽 برنامه غذایی</button>
+      <button class="tab-btn" data-tab="budget" role="tab">💰 لیست خرید</button>
+      <button class="tab-btn" data-tab="training" role="tab">🏋 برنامه تمرین</button>
+      <button class="tab-btn" data-tab="tips" role="tab">💡 نکات کلیدی</button>
+    </nav>
+  </div>
+</header>
+
+<main class="content">
+
+  <!-- ══════════ TAB: FOOD ══════════ -->
+  <section class="tab-panel active" id="tab-food" role="tabpanel">
+    <div class="section-header">
+      <div class="section-eyebrow">چربی‌سوزی با حفظ عضله</div>
+      <div class="section-title">برنامه غذایی روزانه</div>
+      <div class="section-sub">۲۰۰۰ کالری — ۶ وعده کوچک — سازگار با مونجارو دوز ۵</div>
+    </div>
+
+    <div class="alert">
+      <div class="alert-icon">⚠️</div>
+      <div><strong>مونجارو دوز ۵:</strong> هر وعده زیر ۳۵۰ کالری نگه دار. بین وعده‌ها حداقل ۲ ساعت فاصله باشه. اگه حالت تهوع داشتی وعده رو نصف کن و آروم بخور. آب بین وعده‌ها، نه حین غذا خوردن.</div>
+    </div>
+
+    <!-- MACROS -->
+    <div class="macro-row">
+      <div class="macro-card">
+        <div class="macro-val">۲۰۰۰</div>
+        <div class="macro-unit">kcal/روز</div>
+        <div class="macro-label">کالری کل</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val">۱۶۰g</div>
+        <div class="macro-unit">پروتئین</div>
+        <div class="macro-label">۳۲٪ کالری</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-val">۶۵g</div>
+        <div class="macro-unit">چربی</div>
+        <div class="macro-label">۲۹٪ کالری</div>
+      </div>
+    </div>
+
+    <!-- MACRO BARS -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:24px;box-shadow:var(--shadow);">
+      <div class="progress-label"><span>پروتئین</span><strong>۱۶۰g</strong></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:32%"></div></div>
+      <div class="progress-label"><span>کربوهیدرات</span><strong>۲۰۰g</strong></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:39%;background:#F0B840"></div></div>
+      <div class="progress-label"><span>چربی</span><strong>۶۵g</strong></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:29%;background:#D94040"></div></div>
+    </div>
+
+    <div class="mounjaro-guide">
+      <h3>🔶 راهنمای مونجارو دوز ۵ mg</h3>
+      <ul>
+        <li>حداکثر حجم هر وعده: ۳۵۰ کالری — معده‌ات کند هضم می‌کنه</li>
+        <li>بین وعده‌ها ۲ تا ۳ ساعت فاصله بذار</li>
+        <li>آب رو بین وعده‌ها بنوش، نه همزمان با غذا</li>
+        <li>غذاهای پُرچرب مثل پنیر کامل و غذاهای سرخ‌شده تهوع رو زیاد می‌کنن — پرهیز کن</li>
+        <li>اگه حالت خوب نبود اون وعده رو رد کن، مشکلی نیست</li>
+        <li>پروتئین رو اول بخور تا حس سیری بهتری داشته باشی</li>
+      </ul>
+    </div>
+
+    <!-- MEAL TABLE -->
+    <div class="meal-table-wrap">
+      <table class="meal-table">
+        <thead>
+          <tr>
+            <th>وعده</th>
+            <th>غذا</th>
+            <th>مقدار</th>
+            <th>کالری</th>
+            <th>P/C/F (g)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="meal-name-wrap">
+                <div class="meal-num">۱</div>
+                <div>
+                  <span class="meal-name">صبحانه</span>
+                  <span class="meal-note">۷–۸ صبح</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              جو دوسر + پروتئین<br>
+              <span style="font-size:0.78rem;color:var(--fg-faint)">جو دوسر پخته + ۳ عدد سفیده تخم‌مرغ + موز نصف</span>
+            </td>
+            <td>۶۰g جو + ۳ سفیده + نصف موز</td>
+            <td><span class="cal-badge">۳۲۰</span></td>
+            <td><span class="macro-nums">۲۴ / ۴۸ / ۴</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="meal-name-wrap">
+                <div class="meal-num">۲</div>
+                <div>
+                  <span class="meal-name">میان‌وعده</span>
+                  <span class="meal-note">۱۰–۱۱ صبح</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              تخم‌مرغ + خیار<br>
+              <span style="font-size:0.78rem;color:var(--fg-faint)">۲ عدد تخم‌مرغ آب‌پز + یک خیار کوچک</span>
+            </td>
+            <td>۲ عدد تخم‌مرغ + خیار</td>
+            <td><span class="cal-badge">۱۸۰</span></td>
+            <td><span class="macro-nums">۱۴ / ۴ / ۱۱</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="meal-name-wrap">
+                <div class="meal-num">۳</div>
+                <div>
+                  <span class="meal-name">ناهار</span>
+                  <span class="meal-note">۱۲:۳۰–۱ ظهر</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              مرغ + برنج<br>
+              <span style="font-size:0.78rem;color:var(--fg-faint)">سینه مرغ آب‌پز یا گریل + برنج پخته + سالاد ساده</span>
+            </td>
+            <td>۱۵۰g مرغ + ۱۲۰g برنج پخته</td>
+            <td><span class="cal-badge">۳۸۰</span></td>
+            <td><span class="macro-nums">۴۲ / ۴۸ / ۵</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="meal-name-wrap">
+                <div class="meal-num">۴</div>
+                <div>
+                  <span class="meal-name">قبل از تمرین</span>
+                  <span class="meal-note">۳–۴ بعد از ظهر</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              تن ماهی + نان تست<br>
+              <span style="font-size:0.78rem;color:var(--fg-faint)">نصف قوطی تن ماهی + ۱ برش نان سبوس‌دار + کمی آبلیمو</span>
+            </td>
+            <td>نصف قوطی تن (۸۵g) + ۱ برش نان</td>
+            <td><span class="cal-badge">۲۵۰</span></td>
+            <td><span class="macro-nums">۲۸ / ۲۸ / ۴</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="meal-name-wrap">
+                <div class="meal-num">۵</div>
+                <div>
+                  <span class="meal-name">بعد از تمرین</span>
+                  <span class="meal-note">۶:۳۰–۷ شب</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              مرغ + تخم‌مرغ + سبزی<br>
+              <span style="font-size:0.78rem;color:var(--fg-faint)">۱۲۰g سینه مرغ + ۱ تخم‌مرغ کامل + سبزیجات بخارپز</span>
+            </td>
+            <td>۱۲۰g مرغ + ۱ تخم‌مرغ + کدو/هویج</td>
+            <td><span class="cal-badge">۳۲۰</span></td>
+            <td><span class="macro-nums">۳۸ / ۱۴ / ۱۲</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="meal-name-wrap">
+                <div class="meal-num">۶</div>
+                <div>
+                  <span class="meal-name">شام سبک</span>
+                  <span class="meal-note">۹–۱۰ شب</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              تن ماهی + ماست یونانی<br>
+              <span style="font-size:0.78rem;color:var(--fg-faint)">نصف قوطی تن ماهی + ۱۵۰g ماست یونانی کم‌چرب</span>
+            </td>
+            <td>نصف قوطی تن + ۱۵۰g ماست</td>
+            <td><span class="cal-badge">۲۸۰</span></td>
+            <td><span class="macro-nums">۳۰ / ۸ / ۹</span></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="font-weight:700;color:var(--fg)">جمع روزانه</td>
+            <td colspan="2" class="total-row"><span class="cal-badge" style="font-size:0.9rem">۱۷۳۰ kcal</span> &nbsp; +۲۷۰ تنظیم روز تمرین</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert" style="background:var(--accent-light);border-color:var(--accent);">
+      <div class="alert-icon">💧</div>
+      <div style="color:var(--fg)"><strong style="color:var(--accent)">آب مصرفی:</strong> روزی ۳ لیتر — ۱۰ دقیقه قبل از هر وعده یک لیوان بزرگ آب بنوش. آب سرد ممکنه تهوع رو بدتر کنه — آب ولرم بهتره.</div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow);">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:12px;color:var(--fg);">💊 مکمل‌های روزانه</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;">
+        <div style="background:var(--accent-light);border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--accent);margin-bottom:4px;">🔵 کراتین</div>
+          <div style="font-size:0.78rem;color:var(--fg-mid);">۵g روزانه — بعد از تمرین با آب<br>روزهای استراحت هم بخور (هر موقع)</div>
+        </div>
+        <div style="background:var(--accent-light);border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--accent);margin-bottom:4px;">🥛 وی پروتئین</div>
+          <div style="font-size:0.78rem;color:var(--fg-mid);">۱ اسکوپ بعد از تمرین<br>جایگزین وعده ۵ — هضم آسان‌تر با مونجارو</div>
+        </div>
+        <div style="background:var(--bg-subtle);border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--fg-mid);margin-bottom:4px;">⚡ BCAA</div>
+          <div style="font-size:0.78rem;color:var(--fg-faint);">حین یا قبل از تمرین<br>با ۱۶۰g پروتئین ضروری نیست ولی مفیده</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:0.78rem;color:var(--fg-faint);border-top:1px solid var(--border);padding-top:8px;">💡 نکته: اگه حالت تهوع داشتی وعده جامد رو با شیک وی + ماست جایگزین کن — خیلی راحت‌تر هضم میشه</div>
+    </div>
+
+    <div class="alert" style="background:var(--bg-subtle);border-color:var(--border);border-right:3px solid var(--accent);">
+      <div class="alert-icon">📅</div>
+      <div style="color:var(--fg)"><strong>روزهای استراحت:</strong> همین برنامه رو داری ولی وعده ۴ (قبل از تمرین) رو حذف کن — کالری میشه ~۱۷۳۰ که برای ریکاوری کافیه.</div>
+    </div>
+  </section>
+
+  <!-- ══════════ TAB: BUDGET ══════════ -->
+  <section class="tab-panel" id="tab-budget" role="tabpanel">
+    <div class="section-header">
+      <div class="section-eyebrow">Viva Supermarket · Nesto Hypermarket</div>
+      <div class="section-title">لیست خرید هفتگی</div>
+      <div class="section-sub">بودجه: ۱۰۰۰ درهم ماهانه — هدف: زیر ۲۲۰ درهم در هفته</div>
+    </div>
+
+    <div class="budget-summary">
+      <div class="budget-summary-title">📊 خلاصه بودجه ماهانه</div>
+      <div class="budget-line">
+        <span>بودجه ماهانه</span>
+        <span class="budget-line-val">۱۰۰۰ AED</span>
+      </div>
+      <div class="budget-line">
+        <span>هدف هفتگی</span>
+        <span class="budget-line-val">۲۱۵–۲۲۰ AED</span>
+      </div>
+      <div class="budget-line">
+        <span>هدف روزانه</span>
+        <span class="budget-line-val">۳۱–۳۳ AED</span>
+      </div>
+      <div class="budget-line">
+        <span>تخمین واقعی هفتگی</span>
+        <span class="budget-line-val ok">≈ ۲۰۵ AED ✓</span>
+      </div>
+      <div class="budget-line">
+        <span>حاشیه امنیت ماهانه</span>
+        <span class="budget-line-val ok">~۴۰ AED ذخیره</span>
+      </div>
+    </div>
+
+    <div class="budget-grid">
+      <div class="budget-card">
+        <div class="budget-item-name">🍗 سینه مرغ یخ‌زده</div>
+        <div class="budget-item-store">Viva / Nesto — بهترین قیمت</div>
+        <div class="budget-price">۲۲–۲۵ AED</div>
+        <div class="budget-qty">بسته ۲ کیلویی — کافی برای یک هفته</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🥚 تخم‌مرغ</div>
+        <div class="budget-item-store">Viva — برند Farm Fresh</div>
+        <div class="budget-price">۱۳–۱۵ AED</div>
+        <div class="budget-qty">بسته ۳۰ عددی — ۳ هفته کافیه</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🐟 تن ماهی</div>
+        <div class="budget-item-store">Nesto — برند Lucky Star</div>
+        <div class="budget-price">۵–۶ AED</div>
+        <div class="budget-qty">هر قوطی ۱۸۵g — هفته‌ای ۵ قوطی = ۲۸ AED</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🥣 جو دوسر</div>
+        <div class="budget-item-store">Viva / Lulu</div>
+        <div class="budget-price">۸–۱۰ AED</div>
+        <div class="budget-qty">بسته ۱ کیلویی — ۳ هفته کافیه</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🍚 برنج سفید</div>
+        <div class="budget-item-store">Nesto — برند Basmati ارزان</div>
+        <div class="budget-price">۱۲–۱۵ AED</div>
+        <div class="budget-qty">۲ کیلو — ۲ هفته کافیه</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🫙 ماست یونانی</div>
+        <div class="budget-item-store">Viva — برند Al Rawabi</div>
+        <div class="budget-price">۶–۸ AED</div>
+        <div class="budget-qty">بسته ۵۰۰g — ۳ روز کافیه / ۲ بسته هفته‌ای</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🥒 سبزیجات</div>
+        <div class="budget-item-store">سوپر محل یا بازار</div>
+        <div class="budget-price">۱۰–۱۵ AED</div>
+        <div class="budget-qty">خیار، کدو، هویج، کاهو — هفتگی</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🍌 موز</div>
+        <div class="budget-item-store">Nesto یا سوپر</div>
+        <div class="budget-price">۵–۷ AED</div>
+        <div class="budget-qty">یک دسته ۱۲ تایی — یک هفته</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🍞 نان سبوس‌دار</div>
+        <div class="budget-item-store">Viva — نان تست Brown</div>
+        <div class="budget-price">۴–۵ AED</div>
+        <div class="budget-qty">یک بسته — یک هفته کافیه</div>
+      </div>
+      <div class="budget-card">
+        <div class="budget-item-name">🫒 روغن زیتون</div>
+        <div class="budget-item-store">Nesto — اندازه کوچک</div>
+        <div class="budget-price">۱۵ AED</div>
+        <div class="budget-qty">بطری ۵۰۰ml — ماهی یک بار</div>
+      </div>
+    </div>
+
+    <div class="mounjaro-guide" style="border-right-color:var(--accent);">
+      <h3 style="color:var(--accent)">🛒 استراتژی خرید هوشمند در دبی</h3>
+      <ul>
+        <li>مرغ رو همیشه یخ‌زده بخر — نصف قیمت مرغ تازه‌ست. Viva معمولاً ارزون‌تر از Nesto برای مرغه.</li>
+        <li>سه‌شنبه‌ها و چهارشنبه‌ها در Nesto آفرهای هفتگی شروع میشه — اپ Nesto رو داشته باش.</li>
+        <li>تن ماهی Lucky Star ارزون‌ترین گزینه با کیفیت قابل قبوله. برند Rio Mare گرون‌تره ولی لازم نیست.</li>
+        <li>موز و سبزیجات رو از سوپر محل بخر — معمولاً ۳۰٪ ارزون‌تر از سوپرمارکت‌های بزرگه.</li>
+        <li>جو دوسر Quick Oats پخت سریع‌تری داره — برای هاستل بهتره.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════ TAB: TRAINING ══════════ -->
+  <section class="tab-panel" id="tab-training" role="tabpanel">
+    <div class="section-header">
+      <div class="section-eyebrow">Upper/Lower Split — سطح متوسط به پیشرفته</div>
+      <div class="section-title">برنامه تمرینی ۴ روزه</div>
+      <div class="section-sub">هدف: حفظ حداکثری عضله در دوران چربی‌سوزی — Progressive Overload</div>
+    </div>
+
+    <!-- WEEKLY OVERVIEW -->
+    <div class="weekly-overview">
+      <div class="week-day-card train">
+        <div class="week-day-label">شنبه</div>
+        <div class="week-day-content">Upper A</div>
+      </div>
+      <div class="week-day-card train">
+        <div class="week-day-label">یکشنبه</div>
+        <div class="week-day-content">Lower A</div>
+      </div>
+      <div class="week-day-card rest">
+        <div class="week-day-label">دوشنبه</div>
+        <div class="week-day-content">استراحت</div>
+      </div>
+      <div class="week-day-card train">
+        <div class="week-day-label">سه‌شنبه</div>
+        <div class="week-day-content">Upper B</div>
+      </div>
+      <div class="week-day-card train">
+        <div class="week-day-label">چهارشنبه</div>
+        <div class="week-day-content">Lower B</div>
+      </div>
+      <div class="week-day-card rest">
+        <div class="week-day-label">پنجشنبه</div>
+        <div class="week-day-content">استراحت</div>
+      </div>
+      <div class="week-day-card rest">
+        <div class="week-day-label">جمعه</div>
+        <div class="week-day-content">استراحت</div>
+      </div>
+    </div>
+
+    <!-- DAY TABS -->
+    <div class="day-tabs">
+      <button class="day-btn active" data-day="upper-a">روز ۱ — Upper A</button>
+      <button class="day-btn" data-day="lower-a">روز ۲ — Lower A</button>
+      <button class="day-btn" data-day="upper-b">روز ۳ — Upper B</button>
+      <button class="day-btn" data-day="lower-b">روز ۴ — Lower B</button>
+    </div>
+
+    <!-- UPPER A -->
+    <div class="day-panel active" id="day-upper-a">
+      <div class="day-meta">
+        <div class="day-tag">💪 بالاتنه A</div>
+        <div class="day-focus">تمرکز: سینه، شانه، تراپز، پشت‌بازو</div>
+      </div>
+      <div class="exercise-table-wrap">
+        <table class="exercise-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>حرکت</th>
+              <th>ست</th>
+              <th>تکرار</th>
+              <th>استراحت</th>
+              <th>شدت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ex-num">۱</span></td>
+              <td>
+                <div class="ex-name">پرس سینه هالتر</div>
+                <div class="ex-note">Bench Press — اصلی‌ترین حرکت روز</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۶–۸ تکرار</span></td>
+              <td><span class="rest-text">۲–۳ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۲</span></td>
+              <td>
+                <div class="ex-name">رویینگ هالتر خم</div>
+                <div class="ex-note">Barbell Row — پشت بالایی و کمر</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۶–۸ تکرار</span></td>
+              <td><span class="rest-text">۲–۳ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۳</span></td>
+              <td>
+                <div class="ex-name">پرس سرشانه دمبل</div>
+                <div class="ex-note">DB Overhead Press — نشسته</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۰–۱۲ تکرار</span></td>
+              <td><span class="rest-text">۹۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۴</span></td>
+              <td>
+                <div class="ex-name">پل‌اور دمبل</div>
+                <div class="ex-note">DB Pullover — پشت و سینه همزمان</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲–۱۵ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۵</span></td>
+              <td>
+                <div class="ex-name">پشت‌بازو سیم‌کش</div>
+                <div class="ex-note">Tricep Pushdown — Rope یا Bar</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲–۱۵ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-low">سبک</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۶</span></td>
+              <td>
+                <div class="ex-name">فیس پول</div>
+                <div class="ex-note">Face Pull — شانه عقبی + ثبات‌دهنده</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۵–۲۰ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-low">سبک</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOWER A -->
+    <div class="day-panel" id="day-lower-a">
+      <div class="day-meta">
+        <div class="day-tag">🦵 پایین‌تنه A</div>
+        <div class="day-focus">تمرکز: کوادریسپس، گلوت، ساق</div>
+      </div>
+      <div class="exercise-table-wrap">
+        <table class="exercise-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>حرکت</th>
+              <th>ست</th>
+              <th>تکرار</th>
+              <th>استراحت</th>
+              <th>شدت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ex-num">۱</span></td>
+              <td>
+                <div class="ex-name">اسکوات هالتر</div>
+                <div class="ex-note">Back Squat — پادشاه حرکات پایین‌تنه</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۶–۸ تکرار</span></td>
+              <td><span class="rest-text">۳ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۲</span></td>
+              <td>
+                <div class="ex-name">رومانین ددلیفت</div>
+                <div class="ex-note">Romanian Deadlift — همسترینگ</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۸–۱۰ تکرار</span></td>
+              <td><span class="rest-text">۲ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۳</span></td>
+              <td>
+                <div class="ex-name">لگ پرس</div>
+                <div class="ex-note">Leg Press — حجم اضافه برای کواد</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲–۱۵ تکرار</span></td>
+              <td><span class="rest-text">۹۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۴</span></td>
+              <td>
+                <div class="ex-name">لانچ دمبل</div>
+                <div class="ex-note">Walking Lunges — تعادل و گلوت</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲ هر پا</span></td>
+              <td><span class="rest-text">۹۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۵</span></td>
+              <td>
+                <div class="ex-name">ساق ایستاده</div>
+                <div class="ex-note">Standing Calf Raise</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۱۵–۲۰ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-low">سبک</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UPPER B -->
+    <div class="day-panel" id="day-upper-b">
+      <div class="day-meta">
+        <div class="day-tag">💪 بالاتنه B</div>
+        <div class="day-focus">تمرکز: پشت، جلوبازو، شانه جانبی</div>
+      </div>
+      <div class="exercise-table-wrap">
+        <table class="exercise-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>حرکت</th>
+              <th>ست</th>
+              <th>تکرار</th>
+              <th>استراحت</th>
+              <th>شدت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ex-num">۱</span></td>
+              <td>
+                <div class="ex-name">ددلیفت رومانین / سوئدی</div>
+                <div class="ex-note">Conventional Deadlift — اگه Lower A نزدی</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۵–۶ تکرار</span></td>
+              <td><span class="rest-text">۳ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۲</span></td>
+              <td>
+                <div class="ex-name">پرس سینه دمبل</div>
+                <div class="ex-note">DB Incline Press — سینه بالایی</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۸–۱۰ تکرار</span></td>
+              <td><span class="rest-text">۲ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۳</span></td>
+              <td>
+                <div class="ex-name">بارفیکس یا لت پول‌داون</div>
+                <div class="ex-note">Weighted Pull-up یا Lat Pulldown</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۸–۱۰ تکرار</span></td>
+              <td><span class="rest-text">۲ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۴</span></td>
+              <td>
+                <div class="ex-name">نشر جانب دمبل</div>
+                <div class="ex-note">Lateral Raise — شانه پهن</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۱۵–۲۰ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-low">سبک</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۵</span></td>
+              <td>
+                <div class="ex-name">جلوبازو هالتر</div>
+                <div class="ex-note">Barbell Curl</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۰–۱۲ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۶</span></td>
+              <td>
+                <div class="ex-name">جلوبازو چکشی دمبل</div>
+                <div class="ex-note">Hammer Curl — بازوی عمق</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-low">سبک</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOWER B -->
+    <div class="day-panel" id="day-lower-b">
+      <div class="day-meta">
+        <div class="day-tag">🦵 پایین‌تنه B</div>
+        <div class="day-focus">تمرکز: همسترینگ، گلوت، کمربند لگن</div>
+      </div>
+      <div class="exercise-table-wrap">
+        <table class="exercise-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>حرکت</th>
+              <th>ست</th>
+              <th>تکرار</th>
+              <th>استراحت</th>
+              <th>شدت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ex-num">۱</span></td>
+              <td>
+                <div class="ex-name">هیپ ثراست هالتر</div>
+                <div class="ex-note">Hip Thrust — بهترین حرکت گلوت</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۸–۱۰ تکرار</span></td>
+              <td><span class="rest-text">۲ دقیقه</span></td>
+              <td><span class="intensity-pill i-high">سنگین</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۲</span></td>
+              <td>
+                <div class="ex-name">لگ کرل ماشین</div>
+                <div class="ex-note">Lying Leg Curl — همسترینگ ایزوله</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۱۰–۱۲ تکرار</span></td>
+              <td><span class="rest-text">۹۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۳</span></td>
+              <td>
+                <div class="ex-name">لگ اکستنشن</div>
+                <div class="ex-note">Leg Extension — کواد ایزوله</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲–۱۵ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۴</span></td>
+              <td>
+                <div class="ex-name">استپ آپ دمبل</div>
+                <div class="ex-note">Step-Up — تعادل + پا</div>
+              </td>
+              <td><span class="sets-badge">۳ ست</span></td>
+              <td><span class="reps-text">۱۲ هر پا</span></td>
+              <td><span class="rest-text">۹۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-med">متوسط</span></td>
+            </tr>
+            <tr>
+              <td><span class="ex-num">۵</span></td>
+              <td>
+                <div class="ex-name">ساق نشسته</div>
+                <div class="ex-note">Seated Calf Raise — سولئوس</div>
+              </td>
+              <td><span class="sets-badge">۴ ست</span></td>
+              <td><span class="reps-text">۱۵–۲۰ تکرار</span></td>
+              <td><span class="rest-text">۶۰ ثانیه</span></td>
+              <td><span class="intensity-pill i-low">سبک</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mounjaro-guide" style="border-right-color:var(--accent);">
+      <h3 style="color:var(--accent)">📈 قانون Progressive Overload</h3>
+      <ul>
+        <li>هر هفته سعی کن یا یک تکرار اضافه کنی یا ۲.۵ کیلو وزن بیشتر بذاری — یکی از این دو.</li>
+        <li>در دوران کالری کم ممکنه پیشرفت کُند باشه — هدف حفظ وزنه‌هاست نه کاهششون.</li>
+        <li>اگه انرژی نداری (از مونجارو یا غذای کم)، وزنه رو کم کن ولی حرکت رو حذف نکن.</li>
+        <li>گرم‌کردن: ۵ دقیقه کاردیو سبک + یک ست گرم با ۵۰٪ وزن اصلی.</li>
+        <li>هر تمرین ۵۵–۷۰ دقیقه — بیشتر از این حرف‌زدنی.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════ TAB: TIPS ══════════ -->
+  <section class="tab-panel" id="tab-tips" role="tabpanel">
+    <div class="section-header">
+      <div class="section-eyebrow">زندگی در هاستل دبی + مونجارو</div>
+      <div class="section-title">نکات کلیدی و Meal Prep</div>
+      <div class="section-sub">برای اجرای واقعی این برنامه در شرایط شما</div>
+    </div>
+
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-icon">🧊</div>
+        <div class="tip-content">
+          <div class="tip-title">Meal Prep یکشنبه‌ای</div>
+          <div class="tip-body">هر یکشنبه ۱.۵ ساعت وقت بذار: ۸ سینه مرغ بپز (آب‌پز یا فر)، ۱۵ عدد تخم‌مرغ آب‌پز، یک دیگ برنج. داخل ظرف‌های ۶ تایی تقسیم کن. در یخچال مشترک ظرف‌ها رو اسم بنویس — هاستل‌نشینا گاهی برنمی‌دارن.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">⏰</div>
+        <div class="tip-content">
+          <div class="tip-title">تایمینگ غذا با مونجارو</div>
+          <div class="tip-body">مونجارو رو شب تزریق کن. فردا صبح معمولاً حالت بهتره — صبحانه مفصل‌تر بخور. شام آخر هفته (۴ روز بعد از تزریق) معمولاً سخت‌تره — اون روز وعده‌ها رو کوچکتر کن.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🍳</div>
+        <div class="tip-content">
+          <div class="tip-title">آشپزی سریع هاستل</div>
+          <div class="tip-body">جو دوسر Quick Oats رو با آب گرم از دیسپنسر در ۳ دقیقه آماده کن. تن ماهی اصلاً پخت نمی‌خواد. تخم‌مرغ رو ۸ تا ۱۰ تا یک‌جا آب‌پز کن. مرغ رو توی فر هاستل (اگه داری) با فویل بذار — کمترین کثیفی.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">📦</div>
+        <div class="tip-content">
+          <div class="tip-title">ذخیره‌سازی در هاستل</div>
+          <div class="tip-body">یک کیسه خشک برای جو دوسر، نان، و تن ماهی داشته باش (نیازی به یخچال ندارن). فضای یخچال رو با ظرف‌های پشته‌ای (Stack) کمینه کن. هر هفته خرید کن تا مجبور نشی فضای زیادی اشغال کنی.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">💊</div>
+        <div class="tip-content">
+          <div class="tip-title">مکمل‌های ضروری (حداقلی)</div>
+          <div class="tip-body">با این بودجه مکمل گرون نخر. فقط ویتامین D3 (۱۵ AED ماهانه — از Nesto) چون دبی آفتاب زیاد داری ولی داخل کار می‌کنی. کراتین مونوهیدرات ساده (۵g روزانه، حدود ۲۵ AED ماهانه) — بهترین سرمایه‌گذاری برای حفظ عضله.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">📊</div>
+        <div class="tip-content">
+          <div class="tip-title">پیگیری پیشرفت</div>
+          <div class="tip-body">هر شنبه صبح ناشتا وزن بگیر. عکس بگیر هر ۲ هفته یک بار — میزان چون عدد ممکنه با مونجارو اوج و کف داشته باشه. دور کمر و دور سینه هم بگیر — بهترین نشانه چربی‌سوزی واقعیه.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">😴</div>
+        <div class="tip-content">
+          <div class="tip-title">ریکاوری در هاستل</div>
+          <div class="tip-body">خواب کافی (۷–۸ ساعت) با اختلاف مهم‌ترین عامل حفظ عضله‌ست. اگه هاستل پر سر و صداست از گوش‌گیر استفاده کن. روزهای استراحت پیاده‌روی ۲۰ دقیقه‌ای (نه ورزش سنگین) چربی‌سوزی رو بهتر می‌کنه.</div>
+        </div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">🎯</div>
+        <div class="tip-content">
+          <div class="tip-title">هدف‌گذاری واقعی‌بینانه</div>
+          <div class="tip-body">با مونجارو دوز ۵ و این برنامه غذایی، انتظار داشته باش ماهی ۲–۳ کیلو کاهش وزن داشته باشی. از ۹۵ به ۸۰ کیلو حدود ۵–۷ ماه طول می‌کشه — این زمان کافیه که عضله خوبی نگه داری.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mounjaro-guide">
+      <h3>⚡ علائم خطر — چه موقع باید استراحت کنی</h3>
+      <ul>
+        <li>تهوع شدید بعد از تمرین — وعده بعدی رو نصف کن، زیاد آب بنوش</li>
+        <li>سرگیجه حین تمرین — وزنه رو کم کن، آب بنوش، شاید الکترولیت کم داری</li>
+        <li>ضعف خیلی زیاد برای چند روز — کالری رو برای ۲–۳ روز به ۲۲۰۰ بالا ببر</li>
+        <li>اگه هفته‌ای بیشتر از ۱.۵ کیلو داری کم می‌کنی — کالری رو ۱۰۰–۱۵۰ اضافه کن</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// TAB NAVIGATION
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = document.getElementById('tab-' + target);
+    if (panel) panel.classList.add('active');
+  });
+});
+
+// DAY TAB NAVIGATION
+document.querySelectorAll('.day-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.day;
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel = document.getElementById('day-' + target);
+    if (panel) panel.classList.add('active');
+  });
+});
+</script>
